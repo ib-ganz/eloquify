@@ -2,21 +2,21 @@
 This small library is Eloquent-like orm for node which is inspired by laravel's [eloquent](https://laravel.com/docs/8.x/eloquent) orm. If you switch from laravel project to node project, you will lose all of the eloquent's features. You can use this library as an alternative to query your database in an eloquent way. Like any other node orm, eloquify uses `promise`.
 
 ### Setup
-Just copy paste the whole code and you're good to go.
+Just copy paste the whole code to your project and you're good to go.
 
 ### Getting Started
 
 #### Creating Model
-Model class is just an advanced query builder, so you can perform some sql operations on it. To create a model, you can create a `class` that extends `Model`. 
+Model class is just an advanced query builder, so you can perform some sql operations on it. To create a model, you can accomplish this by creating a `class` that extends `Model`. 
 ```
 class Post extends Model {
 
 }
 ```
 This class will be automatically associated with table named `post` in your database. 
-> Note: this behaviour is different from what eloquent does. Eloquent considers "snake case", plural name of the class will be used as the table name if not specified explicitly.
+> This behaviour is different from what eloquent does. Eloquent considers "snake case", plural name of the class will be used as the table name if not specified explicitly.
 
-If you want to change the name of the associated table, you can call `setTable` method inside `init` method.
+If you want to change the name of the associated table, you may call `setTable` method inside `init` method.
 ```
 class Post extends Model {
     init {
@@ -24,7 +24,7 @@ class Post extends Model {
     }
 }
 ```
-At this time, all tables in your database should have primary key named `id`. This is for generating next id when you create a new row in your table. Changing the name of the primary key has not supported yet.
+At this time, all tables in your database should have primary key named `id`. This is for generating next id when you create a new row in your table. Changing the name of the primary key has not supported yet. Eloquify has not yet supported of changing primary key.
 
 #### Getting some data
 The following will get records from `post` table:
@@ -67,22 +67,22 @@ const posts = await Post
 At this time, eloquify can do the following:
 ```
 const posts = await Post.where({ member_id: 10 }).get()
+// Equivalent of `SELECT * FROM post WHERE member_id = 10`.
 ```
-Equivalent of `SELECT * FROM post WHERE member_id = 10`.
 ```
 const posts = await Post.whereNot({ member_id: 10 }).get()
+// Equivalent of `SELECT * FROM post WHERE member_id != 10`.
 ```
-Equivalent of `SELECT * FROM post WHERE member_id != 10`.
 ```
 const posts = await Post.whereIn('id', [1, 2, 3]).get()
+// Equivalent of `SELECT * FROM post WHERE id IN(1,2,3)`.
 ```
-Equivalent of `SELECT * FROM post WHERE id IN(1,2,3)`.
 ```
 const posts = await Post.whereLike('content', '%world%').get()
 // or
 const posts = await Post.whereLike({ content: '%world%' }).get()
+// Equivalent of `SELECT * FROM post WHERE content LIKE '%world%'`.
 ```
-Equivalent of `SELECT * FROM post WHERE content LIKE '%world%'`.
 
 ### Join
 There are multiple ways to join a table with other table:
@@ -128,14 +128,129 @@ If you write `.select('count(*)')`, that will result an empty result
 Eloquify supports conditional query using `when` method:
 ```
 const p = await Post
-  .when(req.body.member_id, q => {
-      q.where({ member_id: member_id })
-  })
-  .get()
+    .when(req.body.member_id, q => {
+        q.where({ member_id: member_id })
+    })
+    .get()
 ```
 The function (second argument of `when` method) will be called only if the first argument is `true`. The `q` variable is an instance of QueryBuilder class that you can do sql opertaion on it. You can name it whatever you want. If you add a funtion as third argument, it will be called if the first argument is `false`.
 ```
 const p = await Post
-  .when(req.body.limit, q => q.limit(limit), q => q.limit(100))
-  .get()
+    .when(req.body.limit, q => q.limit(limit), q => q.limit(100))
+    .get()
 ```
+
+#### Relationship
+At this time, eloquify supports only one-to-one and one-to-many relationships. To define a relationship, call `setRelation` method inside `init` method. Inside `setRelation` method, you can call `hasOne` to create a one-to-one relationship and `hasMany` to create a one-to-many relationship. There is no inverse relationship yet.
+```
+class Post extends Model {
+    init() {
+        this.setRelation([
+            { 'member': this.hasOne(Member, 'id', 'member_id') },
+            { 'comments': this.hasMany(Comment, 'post_id', 'id') },
+        ])
+    }
+}
+```
+`hasOne` and `hasMany` have three paramaters. The first is the model you want to relate. The second is foreign key and the last is local key. To make it clearer, take a look at the example above. On `member` relationship, the first argument is `Member` class. The second is member's primary key: `id` (key that is belongs to member table). And the third is post's foreign key: `member_id` (key that is belongs to post table). Now on `comments` relationship, the first argument is `Comment` class. The second is comment's foreign key: `post_id` (key that is belongs to comment table). And the last is post's primary key: `id` (key that is belongs to post table).
+> Unlike eloquent, you have to provide all three arguments
+
+
+#### Loading Relation
+By default, all related models are lazy loaded. To load a model's relation, access its property using the name of the relation:
+```
+const post = await Post.find(10)
+
+// when you access relation, it returns a promise
+const comments = await post.comments // hasMany returns array of Model
+const member = await post.member // hasOne returns a model
+```
+If you want to eager load relation, you may use `with` method:
+```
+const posts = await Post.with('comments', 'member').get()
+```
+To eager load relation by default, you specify it on the model:
+```
+class Post extends Model {
+    init() {
+        this.setRelation([
+            { 'member': this.hasOne(Member, 'id', 'member_id') },
+            { 'comments': this.hasMany(Comment, 'post_id', 'id') },
+        ])
+        this.with('comments', 'member')
+    }
+}
+```
+If you want to select some columns instead of all columns, you may use the following syntax:
+```
+const posts = await Post
+    .with('comments:id,content,created_at', 'member:id,name,profile_picture')
+    .get()
+// comment models will only have id, content, created_at columns
+// member model will only has id, name, profile_picture columns
+```
+To eager load a relationship's relationships, you may use `.` syntax:
+```
+class Post extends Model {
+    init() {
+        this.setRelation([
+            { 'member': this.hasOne(Member, 'id', 'member_id') },
+            { 'comments': this.hasMany(Comment, 'post_id', 'id') },
+        ])
+    }
+}
+class Comment extends Model {
+    init() {
+        this.setRelation([
+            { 'member': this.hasOne(Member, 'id', 'member_id') },
+        ])
+    }
+}
+const posts = await Post
+    .with('comments.member')
+    .get()
+// this will retrieve all posts with the comments and comment's member 
+```
+To specify additional query conditions for the eager loading query, pass an object to `with` function:
+```
+const posts = await Post
+    .with({ 'comments': q => q.whereLike('content', '%world%') })
+    .get()
+// this will retrieve all posts with the comments containing words like %world%
+```
+> When using eager loading instead of lazy loading in eloquent, there is a query optimization. In eloquify, there is no query optimization yet.
+
+
+#### Has And WhereHas
+If you want to limit model records based on the existence of a relationship, you can use `has` method:
+```
+const posts = await Post.has('comments').get()
+```
+This will retrieve all posts that have at least one comment. You can also specify the number of the relationship:
+```
+const posts = await Post.has('comments', '<=', 10).get()
+```
+This will retrieve all posts that have zero to ten posts.
+If you want to define additional query constraints on your relations, you may use `whereHas`:
+```
+const posts = await Post
+    .whereHas('comments', q => {
+        q.where({ member_id: 10 })
+    })
+    .get()
+```
+This will retrieve all posts where have at least one comment and at least one comment having member_id of 10.
+```
+const posts = await Post
+    .whereHas('comments', q => q.whereLike('content', '%world%'), '>', 10)
+    .get()
+```
+This will retrieve all posts where have at least ten comments and at least one comment containing words like %world%.
+
+## TODO
+* create connection option midleware
+* whereDate, year, month
+* or (orWhere, orHas, etc)
+* nested has
+* set primary key
+
