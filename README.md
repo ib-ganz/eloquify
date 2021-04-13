@@ -296,7 +296,7 @@ post.member_id = 10
 await post.save()
 ```
 
-#### Updating Data
+### Updating Data
 To update data, you can call `update` method:
 ```
 const post = await Post.update({
@@ -305,7 +305,7 @@ const post = await Post.update({
 }, { id: 1 })
 ```
 
-#### Deleting Data
+### Deleting Data
 To delete data, you can call `delete` method:
 ```
 const post = Post.find(1)
