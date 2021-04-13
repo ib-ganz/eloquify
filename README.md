@@ -81,8 +81,8 @@ const posts = await Post.where({ member_id: 10 }).get()
 // Equivalent of `SELECT * FROM post WHERE member_id = 10`.
 ```
 ```
-const posts = await Post.whereNot({ member_id: 10 }).get()
-// Equivalent of `SELECT * FROM post WHERE member_id != 10`.
+const posts = await Post.whereNot({ member_id: 10, is_public: 1 }).get()
+// Equivalent of `SELECT * FROM post WHERE member_id != 10 AND is_public != 1`.
 ```
 ```
 const posts = await Post.whereIn('id', [1, 2, 3]).get()
@@ -132,7 +132,7 @@ const posts = await Post
     .as('p')
     .select('m.id as member_id, m.name as member_name, p.content, p.created_at')
     .join(Member.as('m'), 'm.id = post.member_id')
-    .where({ 'm.is_active': 1 })
+    .where({ 'm.is_active': 1, 'p.is_public': 1 })
     .get()
 ```
 
@@ -285,35 +285,55 @@ There are two ways to store a data into the database. The first way is by callin
 ```
 const post = await Post.create({
     content: 'Hello world',
-    member_id: 10
+    member_id: 10,
+    is_public: 1
 })
 ```
 `create` method returns the stored data. The second way is by creating an instance of the model and calling `save` method:
 ```
 const post = new Post()
+
 post.content = 'Hello world'
 post.member_id = 10
+post.is_public = 1
+
 await post.save()
 ```
 
 ### Updating Data
 To update data, you can call `update` method:
 ```
-const post = await Post.update({
-    content: 'Hello bro',
-    member_id: 10
-}, { id: 1 })
+const post = await Post.update({ content: 'Hello bro' }, 1) 
+// updates only one rows (second argument is id) => returns a model
+
+// or
+const posts = await Post.update({ content: 'Hello bro' }, { member_id: 10 }) 
+// updates one or many rows (2nd argument is object of where) => returns array of models
+
+// or
+const posts = await Post.where({ member_id: 10 }).update({ content: 'Hello bro' }) 
+// updates one or many rows => returns array of models
 ```
 
 ### Deleting Data
 To delete data, you can call `delete` method:
 ```
-const post = Post.find(1)
-await post.delete()
+await Post.delete({ id: 1 }) // deletes one or many rows
 // or
-await Post.delete({ id: 1 })
+await Post.whereRaw('created_at < 2021-01-01').delete() // deletes one or many rows
 // or
-await Post.whereRaw('created_at < 2021-01-01').delete()
+const post = await Post.find(1)
+await post.delete() // deletes only one rows
+
+// the following is wrong ❌ :
+const posts = await Post.where({ member_id: 10 }).get()
+await posts.delete() // cannot delete. posts is an array
+
+// the following is true ✅ :
+const posts = await Post.where({ member_id: 10 }).get()
+for (const post of posts) { // iterate over posts
+    await post.delete() // deletes only one rows
+}
 ```
 
 You can also soft delete data. To accomplish this, your table must have a nullable, timestamp `deleted_at` column. Then in your model, call `softDelete` method:
