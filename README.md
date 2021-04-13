@@ -14,7 +14,7 @@ class Post extends Model {
 }
 ```
 This class will be automatically associated with table named `post` in your database. 
-> This behaviour is different from what eloquent does. Eloquent considers "snake case", plural name of the class will be used as the table name if not specified explicitly.
+> This behaviour is different from what eloquent does. Eloquent considers "snake case", plural name of the class as the table name if not specified explicitly.
 
 If you want to change the name of the associated table, you may call `setTable` method inside `init` method.
 ```
@@ -50,7 +50,7 @@ const post = await Post.find(1)
 All records automatically converted to an instance of the model. So if you execute `post instanceof Post`, this will return `true`.
 There is no collection api in this library since `all()` and `get()` return native javascript array that you can map or do any other operations.
 
-#### Selecting column
+#### Selecting Column
 To retrieve only some columns:
 ```
 const posts = await Post.select('id, content, member_id').get()
@@ -62,6 +62,17 @@ const posts = await Post
     .select('member_id')
     .get()
 ```
+
+#### Hiding Column By Default
+If you want to hide some columns by default when querying select, you can accomplish by specifying what columns to hide in `setHidden` method:
+```
+class Post extends Model {
+    init {
+        this.setHidden('updated_at, deleted_at')
+    }
+}
+```
+That will hide updated_at and deleted_at columns from the result.
 
 #### Where
 At this time, eloquify can do the following:
@@ -83,8 +94,20 @@ const posts = await Post.whereLike('content', '%world%').get()
 const posts = await Post.whereLike({ content: '%world%' }).get()
 // Equivalent of `SELECT * FROM post WHERE content LIKE '%world%'`.
 ```
+```
+const posts = await Post.whereNull('member_id').get()
+// Equivalent of `SELECT * FROM post WHERE member_id IS NULL`.
+```
+```
+const posts = await Post.whereNotNull('member_id').get()
+// Equivalent of `SELECT * FROM post WHERE member_id IS NOT NULL`.
+```
+```
+const posts = await Post.whereRaw('created_at >= 2021-01-01').get()
+// Equivalent of `SELECT * FROM post WHERE created_at >= 2021-01-01`.
+```
 
-### Join
+#### Join
 There are multiple ways to join a table with other table:
 ```
 const posts = await Post.join('member on member.id = post.member_id').get()
@@ -122,7 +145,7 @@ const p = await Post.select(DB.min('viewer')).first()
 const p = await Post.select(DB.max('viewer')).first()
 const p = await Post.select(DB.avg('viewer')).first()
 ```
-If you write `.select('count(*)')`, that will result an empty result
+If you write `.select('count(*)')`, it will return an empty result.
 
 #### Conditional
 Eloquify supports conditional query using `when` method:
@@ -140,7 +163,17 @@ const p = await Post
     .get()
 ```
 
-#### Relationship
+#### Other Methods
+```
+const p = await Post
+    .select('id, content, member_id, created_at')
+    .groupBy('member_id')
+    .when(random, q => q.randomize(), q => q.orderBy('id', 'DESC'))
+    .when(offset, q => q.limit(10, offset), q => q.limit(100))
+    .get()
+```
+
+### Relationship
 At this time, eloquify supports only one-to-one and one-to-many relationships. To define a relationship, call `setRelation` method inside `init` method. Inside `setRelation` method, you can call `hasOne` to create a one-to-one relationship and `hasMany` to create a one-to-many relationship. There is no inverse relationship yet.
 ```
 class Post extends Model {
@@ -153,7 +186,7 @@ class Post extends Model {
 }
 ```
 `hasOne` and `hasMany` have three paramaters. The first is the model you want to relate. The second is foreign key and the last is local key. To make it clearer, take a look at the example above. On `member` relationship, the first argument is `Member` class. The second is member's primary key: `id` (key that is belongs to member table). And the third is post's foreign key: `member_id` (key that is belongs to post table). Now on `comments` relationship, the first argument is `Comment` class. The second is comment's foreign key: `post_id` (key that is belongs to comment table). And the last is post's primary key: `id` (key that is belongs to post table).
-> Unlike eloquent, you have to provide all three arguments
+> Unlike eloquent, you have to provide all three arguments.
 
 
 #### Loading Relation
@@ -162,7 +195,7 @@ By default, all related models are lazy loaded. To load a model's relation, acce
 const post = await Post.find(10)
 
 // when you access relation, it returns a promise
-const comments = await post.comments // hasMany returns array of Model
+const comments = await post.comments // hasMany returns array of models
 const member = await post.member // hasOne returns a model
 ```
 If you want to eager load relation, you may use `with` method:
@@ -247,10 +280,58 @@ const posts = await Post
 ```
 This will retrieve all posts where have at least ten comments and at least one comment containing words like %world%.
 
+### Storing Data
+There are two ways to store a data into the database. The first way is by calling `create` method:
+```
+const post = await Post.create({
+    content: 'Hello world',
+    member_id: 10
+})
+```
+`create` method returns the stored data. The second way is by creating an instance of the model and calling `save` method:
+```
+const post = new Post()
+post.content = 'Hello world'
+post.member_id = 10
+await post.save()
+```
+
+#### Updating Data
+To update data, you can call `update` method:
+```
+const post = await Post.update({
+    content: 'Hello bro',
+    member_id: 10
+}, { id: 1 })
+```
+
+#### Deleting Data
+To delete data, you can call `delete` method:
+```
+const post = Post.find(1)
+await post.delete()
+// or
+await Post.delete({ id: 1 })
+// or
+await Post.whereRaw('created_at < 2021-01-01').delete()
+```
+
+You can also soft delete data. To accomplish this, your table must have a nullable, timestamp `deleted_at` column. Then in your model, call `softDelete` method:
+```
+class Post extends Model {
+    init() {
+        this.softDelete()
+    }
+}
+```
+When a model is set to use soft delete, the data is not actually removed from database when you call delete method on it. Instead, eloquify update the `deleted_at` column on that record.
+
 ## TODO
 * create connection option midleware
 * whereDate, year, month
 * or (orWhere, orHas, etc)
 * nested has
 * set primary key
-
+* aggregate
+* soft delete
+* exception
