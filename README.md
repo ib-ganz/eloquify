@@ -1,3 +1,5 @@
+![npm](https://img.shields.io/npm/v/eloquify)
+
 ## Eloquify
 This small library is Eloquent-like orm for node which is inspired by laravel's [eloquent](https://laravel.com/docs/8.x/eloquent) orm. If you switch from laravel project to node project, you will lose all of the eloquent's features. You can use this library as an alternative to query your database in an eloquent way. Like any other node orm, eloquify uses `promise`.
 
