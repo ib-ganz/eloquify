@@ -11,7 +11,7 @@ $ npm install eloquify
 ### Getting Started
 First thing you need to do is to set the database configuration using `dbConfig` middleware in your app.js:
 ```
-const {dbConfig} = require("eloquify")
+const {dbConfig} = require('eloquify')
 
 app.use(dbConfig({
     user: 'postgres',
@@ -26,6 +26,8 @@ app.use(dbConfig({
 #### Creating Model
 Model class is just an advanced query builder, so you can perform some sql operations on it. To create a model, you can accomplish this by creating a `class` that extends `Model`:
 ```
+const {Model} = require('eloquify')
+
 class Post extends Model {
 
 }
