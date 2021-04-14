@@ -24,7 +24,7 @@ app.use(dbConfig({
 > At this time, eloquify only supports postgresql
 
 #### Creating Model
-Model class is just an advanced query builder, so you can perform some sql operations on it. To create a model, you can accomplish this by creating a `class` that extends `Model`. 
+Model class is just an advanced query builder, so you can perform some sql operations on it. To create a model, you can accomplish this by creating a `class` that extends `Model`:
 ```
 class Post extends Model {
 
@@ -33,7 +33,7 @@ class Post extends Model {
 This class will be automatically associated with table named `post` in your database. 
 > This behaviour is different from what eloquent does. Eloquent considers "snake case", plural name of the class as the table name if not specified explicitly.
 
-If you want to change the name of the associated table, you may call `setTable` method inside `init` method.
+If you want to change the name of the associated table, you may call `setTable` method inside `init` method:
 ```
 class Post extends Model {
     init {
