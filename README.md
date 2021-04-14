@@ -358,7 +358,7 @@ class Post extends Model {
     }
 }
 ```
-When a model is set to use soft delete, the data is not actually removed from database when you call delete method on it. Instead, eloquify update the `deleted_at` column on that record.
+When a model is set to use soft delete, the data is not actually removed from database when you call delete method on it. Instead, eloquify updates the `deleted_at` column to `current_timestap` on that record.
 
 ## TODO
 * create connection option midleware
