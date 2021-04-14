@@ -46,11 +46,11 @@ class Post extends Model {
 At this time, all tables in your database should have primary key named `id`. This is for generating next id when you create a new row in your table. Changing the name of the primary key has not supported yet. Eloquify has not yet supported of changing primary key.
 
 #### Getting some data
-The following will get records from `post` table:
+The following will get all records from `post` table:
 ```
 const posts = await Post.all()
 ```
-This is the equivalent of writing `SELECT * FROM post`. You can also chain all other method to make it more complex:
+This is the equivalent of writing `SELECT * FROM post`. You can also chain all other methods to make the query more complex:
 ```
 const posts = await Post
     .orderBy('created_at', 'DESC')
