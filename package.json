@@ -1,7 +1,6 @@
 {
   "name": "eloquify",
   "version": "1.0.2",
-  "homepage": "https://github.com/ib-ganz/eloquify",
   "description": "Eloquent-like orm for node",
   "main": "index.js",
   "scripts": {
@@ -12,7 +11,6 @@
     "node",
     "eloquent"
   ],
-  "repository": "git://github.com/ib-ganz/eloquify",
   "author": "ib.ganz",
   "license": "MIT",
   "dependencies": {
