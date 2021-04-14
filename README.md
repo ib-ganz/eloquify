@@ -299,7 +299,7 @@ post.is_public = 1
 
 await post.save()
 ```
-> It is recommended to put your `create` function call inside `try catch` block. Otherwise, your app will crash if there is an exception.
+> It is recommended to put your `create` and `save` function call inside `try catch` block. Otherwise, your app will crash if there is an exception.
 
 ### Updating Data
 To update data, you can call `update` method:
@@ -329,6 +329,13 @@ for (const post of posts) { // iterate over posts
     await post.update({ content: 'Hello bro' }) // updates only one rows
 }
 ```
+Or you can call `save` method:
+```
+const post = await Post.find(1)
+post.content = 'Hello bro'
+await post.save()
+```
+> It is recommended to put your `update` and `save` function call inside `try catch` block. Otherwise, your app will crash if there is an exception.
 
 ### Deleting Data
 To delete data, you can call `delete` method:
@@ -352,6 +359,10 @@ for (const post of posts) { // iterate over posts
 
 // delete method returns true if success, false otherwise
 ```
+> When you delete record like this: 
+> `const post = await Post.find(1)`
+> `await post.delete()`
+> , it is recommended to put your `delete` function call inside `try catch` block. Otherwise, your app will crash if there is an exception.
 
 You can also soft delete data. To accomplish this, your table must have a nullable, timestamp `deleted_at` column. Then in your model, call `softDelete` method:
 ```
