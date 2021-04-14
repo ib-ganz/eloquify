@@ -349,6 +349,8 @@ const posts = await Post.where({ member_id: 10 }).get()
 for (const post of posts) { // iterate over posts
     await post.delete() // deletes only one rows
 }
+
+// delete method returns true if success, false otherwise
 ```
 
 You can also soft delete data. To accomplish this, your table must have a nullable, timestamp `deleted_at` column. Then in your model, call `softDelete` method:
