@@ -299,6 +299,7 @@ post.is_public = 1
 
 await post.save()
 ```
+> It is recommended to put your `create` function call inside `try catch` block. Otherwise, your app will crash if there is an exception.
 
 ### Updating Data
 To update data, you can call `update` method:
