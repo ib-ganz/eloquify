@@ -313,6 +313,20 @@ const posts = await Post.update({ content: 'Hello bro' }, { member_id: 10 })
 // or
 const posts = await Post.where({ member_id: 10 }).update({ content: 'Hello bro' }) 
 // updates one or many rows => returns array of models
+
+// or
+const post = await Post.find(1)
+await post.update({ content: 'Hello bro' }) // updates only one rows
+
+// the following is wrong ❌ :
+const posts = await Post.where({ member_id: 10 }).get()
+await posts.update({ content: 'Hello bro' }) // cannot update. posts is an array
+
+// the following is true ✅ :
+const posts = await Post.where({ member_id: 10 }).get()
+for (const post of posts) { // iterate over posts
+    await post.update({ content: 'Hello bro' }) // updates only one rows
+}
 ```
 
 ### Deleting Data
