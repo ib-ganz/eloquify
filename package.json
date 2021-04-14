@@ -1,6 +1,6 @@
 {
   "name": "eloquify",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Eloquent-like orm for node",
   "main": "index.js",
   "scripts": {
