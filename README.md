@@ -5,6 +5,19 @@ This small library is Eloquent-like orm for node which is inspired by laravel's 
 Just copy paste the whole code to your project and you're good to go.
 
 ### Getting Started
+First thing you need to do is to set the database configuration using `dbConfig` middleware in your app.js:
+```
+const {dbConfig} = require("eloquify")
+
+app.use(dbConfig({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'database',
+    password: 'postgres',
+    port: 5432,
+}));
+```
+> At this time, eloquify only supports postgresql
 
 #### Creating Model
 Model class is just an advanced query builder, so you can perform some sql operations on it. To create a model, you can accomplish this by creating a `class` that extends `Model`. 
