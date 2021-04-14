@@ -33,7 +33,7 @@ class Post extends Model {
 }
 ```
 This class will be automatically associated with table named `post` in your database. 
-> This behaviour is different from what eloquent does. Eloquent considers "snake case", plural name of the class as the table name if not specified explicitly.
+> This behaviour is different from what eloquent does. Eloquent considers snake-case, **plural** name of the class as the table name if not specified explicitly. Eloquify considers snake-case, **singular** name of the class as the table name if not specified explicitly. 
 
 If you want to change the name of the associated table, you may call `setTable` method inside `init` method:
 ```
@@ -58,7 +58,7 @@ const posts = await Post
     .get()
 ```
 
-Both `all()` and `get()` methods return an array of the model. If you want to retrieve one single model, you can call `first()`:
+Both `all` and `get` methods return an array of the model. If you want to retrieve one single model, you can call `first`:
 ```
 const post = await Post.orderBy('created_at', 'DESC').first()
 ```
@@ -66,8 +66,8 @@ or you can call `find(id)` to get a model by its id:
 ```
 const post = await Post.find(1)
 ```
-All records automatically converted to an instance of the model. So if you execute `post instanceof Post`, this will return `true`.
-There is no collection api in this library since `all()` and `get()` return native javascript array that you can map or do any other operations.
+All records are automatically converted to an instance of the model. So if you execute `post instanceof Post`, it will return `true`.
+There is no collection api in this library since `all` and `get` return native javascript array that you can map or do any other operations.
 
 #### Selecting Column
 To retrieve only some columns:
@@ -83,7 +83,7 @@ const posts = await Post
 ```
 
 #### Hiding Column By Default
-If you want to hide some columns by default when querying select, you can accomplish by specifying what columns to hide in `setHidden` method:
+If you want to hide some columns by default when querying select, you can accomplish this by specifying what columns to hide in `setHidden` method:
 ```
 class Post extends Model {
     init {
@@ -91,7 +91,7 @@ class Post extends Model {
     }
 }
 ```
-That will hide updated_at and deleted_at columns from the result.
+It will hide updated_at and deleted_at columns from the result.
 
 #### Where
 At this time, eloquify can do the following:
@@ -167,7 +167,7 @@ const p = await Post.select(DB.avg('viewer')).first()
 If you write `.select('count(*)')`, it will return an empty result.
 
 #### Conditional
-Eloquify supports conditional query using `when` method:
+Eloquify supports conditional querying using `when` method:
 ```
 const p = await Post
     .when(req.body.member_id, q => {
@@ -204,7 +204,7 @@ class Post extends Model {
     }
 }
 ```
-`hasOne` and `hasMany` have three paramaters. The first is the model you want to relate. The second is foreign key and the last is local key. To make it clearer, take a look at the example above. On `member` relationship, the first argument is `Member` class. The second is member's primary key: `id` (key that is belongs to member table). And the third is post's foreign key: `member_id` (key that is belongs to post table). Now on `comments` relationship, the first argument is `Comment` class. The second is comment's foreign key: `post_id` (key that is belongs to comment table). And the last is post's primary key: `id` (key that is belongs to post table).
+`hasOne` and `hasMany` have three parameters. The first is the model that you want to relate. The second is foreign key and the last is local key. To make it clearer, take a look at the example above. On `member` relationship, the first argument is `Member` class. The second is member's primary key: `id` (key that is belongs to member table). And the third is post's foreign key: `member_id` (key that is belongs to post table). Now on `comments` relationship, the first argument is `Comment` class. The second is comment's foreign key: `post_id` (key that is belongs to comment table). And the last is post's primary key: `id` (key that is belongs to post table).
 > Unlike eloquent, you have to provide all three arguments.
 
 
@@ -263,14 +263,14 @@ const posts = await Post
     .get()
 // this will retrieve all posts with the comments and comment's member 
 ```
-To specify additional query conditions for the eager loading query, pass an object to `with` function:
+To specify additional query conditions for eager load, pass an object to `with` function:
 ```
 const posts = await Post
     .with({ 'comments': q => q.whereLike('content', '%world%') })
     .get()
 // this will retrieve all posts with the comments containing words like %world%
 ```
-> When using eager loading instead of lazy loading in eloquent, there is a query optimization. In eloquify, there is no query optimization yet.
+> When using eager loading instead of lazy loading, there is a query optimization in eloquent. In eloquify, there is no query optimization yet.
 
 
 #### Has And WhereHas
@@ -336,7 +336,7 @@ const posts = await Post.where({ member_id: 10 }).update({ content: 'Hello bro' 
 
 // or
 const post = await Post.find(1)
-await post.update({ content: 'Hello bro' }) // updates only one rows
+await post.update({ content: 'Hello bro' }) // updates only one row
 
 // the following is wrong ❌ :
 const posts = await Post.where({ member_id: 10 }).get()
@@ -345,7 +345,7 @@ await posts.update({ content: 'Hello bro' }) // cannot update. posts is an array
 // the following is true ✅ :
 const posts = await Post.where({ member_id: 10 }).get()
 for (const post of posts) { // iterate over posts
-    await post.update({ content: 'Hello bro' }) // updates only one rows
+    await post.update({ content: 'Hello bro' }) // updates only one row
 }
 ```
 Or you can call `save` method:
@@ -364,7 +364,7 @@ await Post.delete({ id: 1 }) // deletes one or many rows
 await Post.whereRaw('created_at < 2021-01-01').delete() // deletes one or many rows
 // or
 const post = await Post.find(1)
-await post.delete() // deletes only one rows
+await post.delete() // deletes only one row
 
 // the following is wrong ❌ :
 const posts = await Post.where({ member_id: 10 }).get()
@@ -373,17 +373,17 @@ await posts.delete() // cannot delete. posts is an array
 // the following is true ✅ :
 const posts = await Post.where({ member_id: 10 }).get()
 for (const post of posts) { // iterate over posts
-    await post.delete() // deletes only one rows
+    await post.delete() // deletes only one row
 }
 
 // delete method returns true if success, false otherwise
 ```
 > When you delete record like this: 
-> `const post = await Post.find(1)`
-> `await post.delete()`
+> `const post = await Post.find(1);`
+> `await post.delete();`
 > , it is recommended to put your `delete` function call inside `try catch` block. Otherwise, your app will crash if there is an exception.
 
-You can also soft delete data. To accomplish this, your table must have a nullable, timestamp `deleted_at` column. Then in your model, call `softDelete` method:
+You can also soft-delete data. To accomplish this, your table must have a nullable, timestamp | datetime `deleted_at` column. Then in your model, call `softDelete` method:
 ```
 class Post extends Model {
     init() {
@@ -402,3 +402,4 @@ When a model is set to use soft delete, the data is not actually removed from da
 * aggregate
 * soft delete
 * exception
+* select soft-deleted records
