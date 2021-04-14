@@ -12,5 +12,8 @@
     "eloquent"
   ],
   "author": "ib.ganz",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "pg": "^8.6.0"
+  }
 }
