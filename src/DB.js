@@ -21,6 +21,10 @@ class DB {
     static avg(arg) {
         return new Aggregate('AVG', arg);
     }
+
+    static select(query) {
+
+    }
 }
 
 module.exports = { DB, Aggregate };
