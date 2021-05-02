@@ -16,6 +16,7 @@
   "author": "ib.ganz",
   "license": "MIT",
   "dependencies": {
+    "mysql": "^2.18.1",
     "pg": "^8.6.0"
   }
 }

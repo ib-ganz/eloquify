@@ -1,4 +1,4 @@
-const QueryExecutor = require('./QueryExecutor');
+const QueryExecutor = require('./executor/QueryExecutor');
 const { filterColumns, valueMapper, containsAggregate, buildSelect, camelToSnakeCase, checkJoinArg, whereMapper } = require('./helpers');
 const Producer = require('./Producer');
 
