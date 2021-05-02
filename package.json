@@ -1,6 +1,6 @@
 {
   "name": "eloquify",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "homepage": "https://github.com/ib-ganz/eloquify",
   "description": "Eloquent-like orm for node",
   "main": "index.js",
