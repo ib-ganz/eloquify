@@ -1,3 +1,5 @@
+const QueryExecutor = require('./executor/QueryExecutor')
+
 class Aggregate {
     constructor(fun, arg) {
         this.fun = fun;
@@ -20,6 +22,15 @@ class DB {
     }
     static avg(arg) {
         return new Aggregate('AVG', arg);
+    }
+
+    static async select(query) {
+        const executor = new QueryExecutor()
+        return await executor.execute(query)
+    }
+    static async execute(query) {
+        const executor = new QueryExecutor()
+        return await executor.executeRaw(query)
     }
 }
 

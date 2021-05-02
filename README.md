@@ -9,11 +9,23 @@ $ npm install eloquify
 ```
 
 ### Getting Started
-First thing you need to do is to set the database configuration using `dbConfig` middleware in your app.js:
+First thing you need to do is to set the database configuration using `dbConfig` function before executing any query: 
 ```
 const {dbConfig} = require('eloquify')
 
+dbConfig({
+    driver: 'pg',
+    user: 'postgres',
+    host: 'localhost',
+    database: 'database',
+    password: 'postgres',
+    port: 5432,
+})
+```
+If you use express, you can call this method as a middleware in your app.js:
+```
 app.use(dbConfig({
+    driver: 'pg',
     user: 'postgres',
     host: 'localhost',
     database: 'database',
@@ -21,7 +33,7 @@ app.use(dbConfig({
     port: 5432,
 }));
 ```
-> At this time, eloquify only supports postgresql
+At this time, eloquify only supports PostgreSql and MySql. Set `driver` configuration to `pg` to use PostgreSql and `my-sql` to use MySql. You can omit the `port` configuration when using `my-sql` driver.
 
 #### Creating Model
 Model class is just an advanced query builder, so you can perform some sql operations on it. To create a model, you can accomplish this by creating a `class` that extends `Model`:
@@ -392,6 +404,22 @@ class Post extends Model {
 }
 ```
 When a model is set to use soft delete, the data is not actually removed from database when you call delete method on it. Instead, eloquify updates the `deleted_at` column to `current_timestap` on that record.
+
+### Raw Query
+Eloquify lets you querying using raw query. To select data:
+```
+const { DB } = require('eloquify')
+
+const posts = await DB.select('SELECT * FROM post LIMIT 10')
+```
+
+To insert, update, or delete data, you can use `execute` method:
+```
+const { DB } = require('eloquify')
+
+const response = await DB.execute(`DELETE FROM post where id = 23`)
+```
+If success, `response` will be `{ success: true }`. Otherwise, it will be `{ success: false, error: 'error.message' }`.
 
 ## TODO
 * create connection option midleware

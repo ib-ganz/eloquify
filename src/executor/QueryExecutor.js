@@ -1,9 +1,26 @@
-const db = require('./database');
+const my_sql = require('./my-sql')
+const pg = require('./pg')
+const { getConfig } = require('../database/config')
 
 class QueryExecutor {
 
     constructor(objModel) {
         this.model = objModel;
+        this.driver = getConfig().driver
+
+        if (this.driver === undefined) {
+            throw new Error('Driver not set')
+        }
+        if (this.driver !== 'pg' && this.driver !== 'my-sql') {
+            throw new Error('Unsupported driver name. Supported drivers: pg, my-sql')
+        }
+
+        if (this.driver === 'pg') {
+            this.executor = pg
+        }
+        else if (this.driver === 'my-sql') {
+            this.executor = my_sql
+        }
     }
 
     proxy = () => {
@@ -48,8 +65,7 @@ class QueryExecutor {
 
     async get(query, params = []) {
         const r = await this.execute(query);
-        const d = r.map(v => this.map(v));
-        return d;
+        return r.map(v => this.map(v));
     }
 
     async nextId(query) {
@@ -63,39 +79,19 @@ class QueryExecutor {
         }
     }
 
-    execute(query, params = []) {
+    async execute(query, params = []) {
         console.log(query);
-        return new Promise((resolve, reject) => {
-            db.query(query, params, (err, res) => {
-                if (err) {
-                    console.log(err);
-                    resolve([]);
-                }
-                else {
-                    resolve(res.rows);
-                }
-            }).catch(e => {
-                console.log(e);
-                resolve([]);
-            })
-        })
+        return await this.executor.execute(query, params)
+    }
+
+    async executeRaw(query, params = []) {
+        console.log(query);
+        return await this.executor.executeRaw(query, params)
     }
 
     executeCallback(query, err_, res_, params = []) {
         console.log(query);
-        try {
-            db.query(query, params, (err, res) => {
-                if (err) {
-                    err_(err)
-                }
-                else {
-                    res_(res)
-                }
-            })
-        }
-        catch (e) {
-            err_(e)
-        }
+        this.executor.executeCallback(query, err_, res_, params)
     }
 }
 
