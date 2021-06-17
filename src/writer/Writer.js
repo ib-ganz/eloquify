@@ -1,6 +1,6 @@
 const Compiler = require('../compiler/Compiler')
 const { Execution, Query, Model } = require('../builder/data/constraint-type')
-const { rawDataToInstance } = require('../util/helpers')
+const rawDataToInstance = require('../util/rawDataToInstance')
 const { DB } = require('../DB')
 const { getConfig } = require('../database/config')
 const logger = require('../util/logger')

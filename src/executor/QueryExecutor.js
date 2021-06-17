@@ -2,7 +2,7 @@ const my_sql = require('./my-sql')
 const pg = require('./pg')
 const { getConfig } = require('../database/config')
 const logger = require('../util/logger')
-const { rawDataToInstance } = require('../util/helpers')
+const rawDataToInstance = require('../util/rawDataToInstance')
 
 class QueryExecutor {
 
