@@ -1,12 +1,21 @@
 const my_sql = require('./my-sql')
 const pg = require('./pg')
 const { getConfig } = require('../database/config')
+const logger = require('../util/logger')
+const { rawDataToInstance } = require('../util/helpers')
 
 class QueryExecutor {
 
+    static newInstance(objModel) {
+        return new QueryExecutor(objModel)
+    }
+
     constructor(objModel) {
-        this.model = objModel;
-        this.driver = getConfig().driver
+        this.model = objModel
+
+        const config = getConfig()
+        this.driver = config.driver
+        this.query_log = config.query_log ?? false
 
         if (this.driver === undefined) {
             throw new Error('Driver not set')
@@ -24,75 +33,68 @@ class QueryExecutor {
     }
 
     proxy = () => {
-        this.model.data = data;
-        const target = this.model;
+        this.model.data = data
+        const target = this.model
         const handler = {
             get: function (target, prop, receiver) {
-                return target.data[prop] || null;
+                return target.data[prop] || null
             },
             set: function(target, prop, value) {
-                target.data[prop] = value;
-                return true;
+                target.data[prop] = value
+                return true
             }
         }
 
-        return new Proxy(target, handler);
+        return new Proxy(target, handler)
     }
 
     map(data) {
-        let model = this.model.newInstance();
-        const hidden = model.getHidden();
-
-        for (const [key, value] of Object.entries(data)) {
-            if (!hidden.includes(key))
-                model[key] = value;
-        }
-
-        model.stored = () => Object.keys(data).length > 0;
-
-        return model;
+        return rawDataToInstance(data, this.model)
     }
 
-    async find(query) {
-        const r = await this.execute(query);
+    async find(query, showLog = false) {
+        const r = await this.execute(query, showLog)
         if (r && r.length) {
-            return [this.map(r[0])];
+            return [this.map(r[0])]
         }
         else {
-            return [this.map({})];
+            return [this.map({})]
         }
     }
 
-    async get(query, params = []) {
-        const r = await this.execute(query);
-        return r.map(v => this.map(v));
+    async get(query, showLog = false) {
+        const r = await this.execute(query, showLog)
+        return r.map(v => this.map(v))
     }
 
     async nextId(query) {
-        const r = await this.execute(query);
+        const r = await this.execute(query, false)
         if (r && r.length) {
-            const id = r[0].id;
-            return parseInt(id) + 1;
+            const id = r[0].id
+            return parseInt(id) + 1
         }
         else {
-            return 1;
+            return 1
         }
     }
 
-    async execute(query, params = []) {
-        console.log(query);
-        return await this.executor.execute(query, params)
+    async execute(query, showLog = false) {
+        if (this.query_log || showLog)
+            logger.infoLog(query)
+        return this.executor.execute(query)
     }
 
-    async executeRaw(query, params = []) {
-        console.log(query);
-        return await this.executor.executeRaw(query, params)
+    async executeRaw(query, showLog = false) {
+        if (this.query_log || showLog)
+            logger.infoLog(query)
+        return this.executor.executeRaw(query)
     }
 
-    executeCallback(query, err_, res_, params = []) {
-        console.log(query);
-        this.executor.executeCallback(query, err_, res_, params)
+    executeCallback(query, err_, res_, showLog = false) {
+        if (this.query_log || showLog)
+            logger.infoLog(query)
+        this.executor.executeCallback(query, err_, res_)
     }
 }
 
-module.exports = QueryExecutor;
+module.exports = QueryExecutor

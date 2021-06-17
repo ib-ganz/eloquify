@@ -19,7 +19,14 @@ module.exports = {
                 user: config.user,
                 database: config.database,
                 password: config.password,
-                dateStrings: true
+                dateStrings: true,
+                typeCast: function castField( field, useDefaultTypeCasting ) {
+                    if ( ( field.type === "BIT" ) && ( field.length === 1 ) ) {
+                        let bytes = field.buffer();
+                        return( bytes[ 0 ] === 1 );
+                    }
+                    return( useDefaultTypeCasting() );
+                }
             })
         }
 
