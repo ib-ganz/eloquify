@@ -1,18 +1,19 @@
-const db = require('../database/pg');
+const db = require('../database/pg')
+const logger = require('../util/logger')
 
 function execute(query, params = []) {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, res) => {
             if (err) {
-                console.log(err);
-                resolve([]);
+                logger.errorLog(err)
+                resolve([])
             }
             else {
-                resolve(res.rows);
+                resolve(res.rows)
             }
         }).catch(e => {
-            console.log(e);
-            resolve([]);
+            logger.errorLog(e)
+            resolve([])
         })
     })
 }
@@ -37,17 +38,17 @@ function executeRaw(query, params = []) {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, res) => {
             if (err) {
-                console.log(err)
+                logger.errorLog(err)
                 resolve({
                     success: false,
                     error: err.message
-                });
+                })
             }
             else {
                 resolve({ success: true })
             }
         }).catch(e => {
-            console.log(e)
+            logger.errorLog(e)
             resolve({
                 success: false,
                 error: e.message

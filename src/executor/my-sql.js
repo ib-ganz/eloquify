@@ -1,14 +1,15 @@
-const db = require('../database/my-sql');
+const db = require('../database/my-sql')
+const logger = require('../util/logger')
 
 function execute(query, params = []) {
     return new Promise((resolve, reject) => {
         db.query(query, (err, res) => {
             if (err) {
-                console.log(err);
-                resolve([]);
+                logger.errorLog(err)
+                resolve([])
             }
             else {
-                resolve(res);
+                resolve(res)
             }
         })
     })
@@ -34,11 +35,11 @@ function executeRaw(query, params = []) {
     return new Promise((resolve, reject) => {
         db.query(query, (err, res) => {
             if (err) {
-                console.log(err)
+                logger.errorLog(err)
                 resolve({
                     success: false,
                     error: err.message
-                });
+                })
             }
             else {
                 resolve({ success: true })
