@@ -1,7 +1,7 @@
 {
   "name": "eloquify",
-  "version": "1.0.6",
-  "homepage": "https://github.com/ib-ganz/eloquify",
+  "version": "2.0.2",
+  "homepage": "https://eloquify.ib-ganz.dev/",
   "description": "Eloquent-like orm for node",
   "main": "index.js",
   "scripts": {
@@ -10,12 +10,16 @@
   "keywords": [
     "orm",
     "node",
-    "eloquent"
+    "eloquent",
+    "backend",
+    "mysql",
+    "postgresql"
   ],
   "repository": "git://github.com/ib-ganz/eloquify",
   "author": "ib.ganz",
   "license": "MIT",
   "dependencies": {
+    "mysql": "^2.18.1",
     "pg": "^8.6.0"
   }
 }

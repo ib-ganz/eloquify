@@ -1,6 +1,6 @@
-const QueryExecutor = require('./QueryExecutor');
-const { filterColumns, valueMapper, containsAggregate, buildSelect, camelToSnakeCase, checkJoinArg, whereMapper } = require('./helpers');
-const Producer = require('./Producer');
+const QueryExecutor = require('../executor/QueryExecutor');
+const { filterColumns, valueMapper, containsAggregate, buildSelect, camelToSnakeCase, checkJoinArg, whereMapper } = require('../util/helpers');
+const Producer = require('../reader/Producer');
 
 class QueryBuilder {
 

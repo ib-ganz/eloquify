@@ -22,8 +22,17 @@ class DB {
         return new Aggregate('AVG', arg);
     }
 
-    static select(query) {
+    static raw(query) {
+        return () => query
+    }
 
+    static async select(query) {
+        const executor = new QueryExecutor()
+        return await executor.execute(query, false)
+    }
+    static async execute(query) {
+        const executor = new QueryExecutor()
+        return await executor.executeRaw(query, false)
     }
 }
 
