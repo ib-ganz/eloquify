@@ -12,7 +12,7 @@ const relate = async (parentModel, parentResults, singleWith) => {
                 break
 
             const relationName = relationString.split(':')[0]
-            if (typeof parentModel[relationName] === 'function') {
+            if (typeof pm[relationName] === 'function') {
                 const f = func ? func[relationName] : null
                 const res = await getChildren(pm, relationName, relationString, pr, f)
 

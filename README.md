@@ -54,6 +54,8 @@ const post = await Post.create({
 
 For full documentation, please visit https://eloquify.ib-ganz.dev/docs/v2
 
+If you find a bug, please report it on github.
+
 ### TODO
 * whereDate, year, month
 * set primary key
