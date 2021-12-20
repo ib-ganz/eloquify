@@ -1,3 +1,5 @@
+const QueryExecutor = require('./executor/QueryExecutor')
+
 class Aggregate {
     constructor(fun, arg) {
         this.fun = fun;
