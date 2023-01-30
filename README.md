@@ -52,7 +52,7 @@ const post = await Post.create({
 })
 ```
 
-For full documentation, please visit https://eloquify.ib-ganz.dev/docs/v2
+For full documentation, please visit https://eloquify.ib-ganz.dev/docs/v2. If the link is not working, please visit https://eloquify.kebandigital.com/
 
 If you find a bug, please report it on github.
 
